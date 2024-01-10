@@ -16,6 +16,8 @@ public:
 	// Sets default values for this actor's properties
 	AGrappleTarget();
 
+	const FVector GetCharacterLandingLocation();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -24,6 +26,13 @@ public:
 	UPROPERTY(VisibleAnywhere)
 		TObjectPtr<UStaticMeshComponent> TargetMesh;
 
-	/*UPROPERTY(EditAnywhere)
-		TObjectPtr<class USphereComponent> SphereCollision;*/
+	//UPROPERTY(VisibleAnywhere)
+	//	TObjectPtr<USceneComponent> Root;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		TObjectPtr<USceneComponent> CharacterLandingLocation;
+
+//protected:
+//	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(MakeEditWidget))
+//		FVector CharacterOffset = FVector(0.f, 0.f, 100.f);
 };

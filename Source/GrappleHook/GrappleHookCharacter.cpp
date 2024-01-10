@@ -51,7 +51,7 @@ AGrappleHookCharacter::AGrappleHookCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
 	GrappleBehaviourComponent = CreateDefaultSubobject<UGrappleBehaviourComponent>(TEXT("GrappleBehaviourComponent"));
-	//GrappleBehaviourComponent->SetupAttachment(RootComponent);
+
 }
 
 void AGrappleHookCharacter::BeginPlay()
@@ -86,6 +86,8 @@ void AGrappleHookCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGrappleHookCharacter::Look);
+
+		EnhancedInputComponent->BindAction(GrappleAction, ETriggerEvent::Started, this, &AGrappleHookCharacter::TryGrapple);
 
 	}
 
@@ -128,5 +130,12 @@ void AGrappleHookCharacter::Look(const FInputActionValue& Value)
 }
 
 
+void AGrappleHookCharacter::TryGrapple()
+{
+	if (GrappleBehaviourComponent)
+	{
+		GrappleBehaviourComponent->TryGrapple();
+	}
+}
 
 

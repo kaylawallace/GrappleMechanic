@@ -38,6 +38,9 @@ class AGrappleHookCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> GrappleAction;
+
 public:
 	AGrappleHookCharacter();
 	
@@ -60,6 +63,8 @@ protected:
 	
 	// To add mapping context
 	virtual void BeginPlay();
+
+	void TryGrapple();
 
 public:
 	/** Returns CameraBoom subobject **/

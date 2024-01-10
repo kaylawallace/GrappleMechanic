@@ -38,6 +38,8 @@ public:
 
 	void SetCurrentTarget(AGrappleTarget* NewTarget);
 
+	void TryGrapple();
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<class AGrappleHookCharacter> OwningCharacter;
@@ -45,8 +47,34 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EGrappleState GrappleState;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	/*const*/ float MaxGrappleRange = 1500.f;
+	UPROPERTY(EditAnywhere)
+	float MaxGrappleRange = 1500.f;
 
 	TObjectPtr<AGrappleTarget> CurrentTarget;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class AGrappleEndPoint> GrappleEndPointClass;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class AGrappleCable> GrappleCableClass;
+
+	TObjectPtr<class AGrappleEndPoint> EndPoint; 
+
+	TObjectPtr<class AGrappleCable> GrappleCable;
+
+	// Distance between grapple end point and target in which the player will start grapple movement/action
+	UPROPERTY(EditAnywhere)
+	float StartGrappleDistance = 500.f;
+
+	// Distance between the owning character and grapple target at which the player will receive a boost before landing at grapple target
+	UPROPERTY(EditAnywhere)
+	float EndGrappleDistance = 200.f;
+
+	UPROPERTY(EditAnywhere)
+	float CharacterGrappleSpeed = 1500.f;
+
+	FVector InitLaunchDirection = FVector(0.f);
+
+//private:
+//	FVector
 };

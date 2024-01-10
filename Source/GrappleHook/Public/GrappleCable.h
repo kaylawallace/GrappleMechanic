@@ -9,9 +9,9 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class GRAPPLEHOOK_API AGrappleCable : public ACableActor
 {
 	GENERATED_BODY()
-	
+
 };
