@@ -29,17 +29,26 @@ void UGrappleBehaviourComponent::BeginPlay()
 
 	// Save reference to owning character as type AGrappleHookCharacter
 	OwningCharacter = Cast<AGrappleHookCharacter>(GetOwner());
-	
 }
 
 void UGrappleBehaviourComponent::SetCurrentTarget(AGrappleTarget* NewTarget)
 {
-	if (NewTarget == CurrentTarget)
+	if (CurrentTarget)
 	{
-		return;
-	}
+		if (NewTarget == CurrentTarget)
+		{
+			return;
+		}
 
+		// Hide previous current target widget
+		CurrentTarget->ShowTargetWidget(false);
+	}
+	
 	CurrentTarget = NewTarget;
+
+	// Show new current target widget
+	CurrentTarget->ShowTargetWidget(true);
+
 }
 
 void UGrappleBehaviourComponent::TryGrapple()
@@ -134,13 +143,21 @@ void UGrappleBehaviourComponent::Tick_GrappleRetracted()
 			ETraceTypeQuery::TraceTypeQuery1,
 			false,
 			ActorsToIgnore,
-			EDrawDebugTrace::ForOneFrame,
+			EDrawDebugTrace::None,
 			Hit,
 			true,
 			FColor::Red,
 			FColor::Green,
 			0.f
 		);
+
+		
+		//ECollisionChannel ECC = UEngineTypes::ConvertToCollisionChannel(ETraceTypeQuery::TraceTypeQuery1);
+
+		//if (GEngine)
+		//		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, UEnum::GetValueAsString(ECC));
+
+		/*UKismetSystemLibrary::Linetracebychan*/
 
 		// Best Target Calculation
 		if (Hit.GetActor())
@@ -173,11 +190,11 @@ void UGrappleBehaviourComponent::Tick_GrappleRetracted()
 
 		SetCurrentTarget(Cast<AGrappleTarget>(BestTarget));
 	}
-	else
-	{
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, TEXT("No best target found"));
-	}
+	//else
+	//{
+	//	if (GEngine)
+	//		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, TEXT("No best target found"));
+	//}
 }
 
 void UGrappleBehaviourComponent::Tick_GrappleFiring()
@@ -195,8 +212,19 @@ void UGrappleBehaviourComponent::Tick_GrappleNearingTarget()
 	if (OwningCharacter->GetVelocity().Z <= 0.f)
 	{
 		InitLaunchDirection = (CurrentTarget->GetCharacterLandingLocation() - OwningCharacter->GetActorLocation()).GetSafeNormal();
-		//OwningCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
 		GrappleState = EGrappleState::OnTarget;
+
+		Steepness = InitLaunchDirection.Rotation().Pitch;
+
+		if (Steepness <= 0.f)
+		{
+			FinalBoost = MinFinalBoost;
+		}
+		else
+		{
+			float SteepnessNormalised = FMath::GetMappedRangeValueClamped(FVector2D(0.f, 80.f), FVector2D(0.f, 1.f), Steepness);
+			FinalBoost = FMath::Lerp(MinFinalBoost, MaxFinalBoost, SteepnessNormalised);
+		}
 	}
 }
 
@@ -204,10 +232,15 @@ void UGrappleBehaviourComponent::Tick_GrappleOnTarget()
 {
 	if (OwningCharacter->GetDistanceTo(CurrentTarget) < EndGrappleDistance)
 	{
-		FVector LaunchVelocity = InitLaunchDirection * 400.f; 
-		LaunchVelocity.Z = FMath::Max(LaunchVelocity.Z, 600.f);
+		/*float Steepness = InitLaunchDirection.Rotation().Roll;
+		
+		if (GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Purple, FString::Printf((TEXT("Steepness = %f")), Steepness));*/
 
-		OwningCharacter->LaunchCharacter(LaunchVelocity, true, (OwningCharacter->GetVelocity().Z > 0.f) /*true*/);
+		FVector LaunchVelocity = InitLaunchDirection * MinFinalBoost; 
+		LaunchVelocity.Z = FMath::Max(LaunchVelocity.Z, FinalBoost);
+
+		OwningCharacter->LaunchCharacter(LaunchVelocity, true, (OwningCharacter->GetVelocity().Z > 0.f));
 
 		CurrentTarget = nullptr;
 		GrappleCable->Destroy();
@@ -230,7 +263,7 @@ void UGrappleBehaviourComponent::TickComponent(float DeltaTime, ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (GEngine)
+	/*if (GEngine)
 	{
 		if (GrappleCable)
 		{
@@ -249,7 +282,14 @@ void UGrappleBehaviourComponent::TickComponent(float DeltaTime, ELevelTick TickT
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, TEXT("No valid Grapple End Point"));
 		}
-	}
+
+		Steepness = InitLaunchDirection.Rotation().Pitch;
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Purple, FString::Printf((TEXT("Steepness = %f")), Steepness));
+			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Purple, FString::Printf((TEXT("Curr Final Boost = %f")), FinalBoost));
+		}
+	}*/
 		
 
 	switch (GrappleState)
@@ -274,7 +314,7 @@ void UGrappleBehaviourComponent::TickComponent(float DeltaTime, ELevelTick TickT
 		break;
 	}
 
-	if (CurrentTarget)
+	/*if (CurrentTarget)
 	{
 		FVector Origin;
 		FVector Bounds;
@@ -292,7 +332,7 @@ void UGrappleBehaviourComponent::TickComponent(float DeltaTime, ELevelTick TickT
 			0,
 			2.f
 		);
-	}
+	}*/
 }
 
 

@@ -75,6 +75,14 @@ protected:
 
 	FVector InitLaunchDirection = FVector(0.f);
 
-//private:
-//	FVector
+	UPROPERTY(EditAnywhere)
+	float MinFinalBoost = 400.f;
+
+	UPROPERTY(EditAnywhere)
+	float MaxFinalBoost = 1000.f;
+
+private:
+	float Steepness = 0.f;
+
+	float FinalBoost = 0.f;
 };

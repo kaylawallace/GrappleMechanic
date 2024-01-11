@@ -18,19 +18,30 @@ public:
 
 	const FVector GetCharacterLandingLocation();
 
+	void ShowTargetWidget(bool bShow);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		TObjectPtr<UStaticMeshComponent> TargetMesh;
 
-	//UPROPERTY(VisibleAnywhere)
-	//	TObjectPtr<USceneComponent> Root;
+	UPROPERTY(VisibleAnywhere)
+		TObjectPtr<USceneComponent> Root;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		TObjectPtr<USceneComponent> CharacterLandingLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		TObjectPtr<class USphereComponent> CollisionSphere;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		TObjectPtr<class UBillboardComponent> TargetIconBillboard;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		TObjectPtr<class UWidgetComponent> TargetWidget;
 
 //protected:
 //	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(MakeEditWidget))

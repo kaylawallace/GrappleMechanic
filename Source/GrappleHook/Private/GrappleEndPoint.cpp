@@ -10,22 +10,21 @@ AGrappleEndPoint::AGrappleEndPoint()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	//if (!Root)
+	//{
+	//	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	//	SetRootComponent(Root);
+	//}
 
-	if (!Mesh)
-	{
-		Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-		Mesh->SetupAttachment(RootComponent);
-		Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-		Mesh->SetGenerateOverlapEvents(false);
-	}
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	Mesh->SetupAttachment(RootComponent);
+	Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+	Mesh->SetGenerateOverlapEvents(false);
 	
-	if (!ProjectileMovement)
-	{
-		ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
-		ProjectileMovement->ProjectileGravityScale = 0.f;
-		ProjectileMovement->InitialSpeed = 5000.f;
-		ProjectileMovement->MaxSpeed = 5000.f;
-	}
+	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
+	ProjectileMovement->ProjectileGravityScale = 0.f;
+	ProjectileMovement->InitialSpeed = 5000.f;
+	ProjectileMovement->MaxSpeed = 5000.f;
 }
 
 // Called when the game starts or when spawned
@@ -38,6 +37,13 @@ void AGrappleEndPoint::BeginPlay()
 void AGrappleEndPoint::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (FVector::DistSquared(GetActorLocation(), StartLocation) >= FVector::DistSquared(GrappleTarget->GetActorLocation(), StartLocation))
+	{
+		SetActorLocation(EndLocation);
+		ProjectileMovement->Velocity = FVector(0.f);
+		SetActorTickEnabled(false);
+	}
 }
 
 void AGrappleEndPoint::OnConstruction(const FTransform& transform)
@@ -53,11 +59,11 @@ void AGrappleEndPoint::OnConstruction(const FTransform& transform)
 
 		SetActorRotation(Direction.Rotation());
 	}
-	else
-	{
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("No grapple target found"));
-	}
+	//else
+	//{
+	//	if (GEngine)
+	//		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("No grapple target found"));
+	//}
 }
 
 FVector AGrappleEndPoint::GetDirection()

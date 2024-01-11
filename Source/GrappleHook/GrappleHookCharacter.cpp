@@ -88,9 +88,7 @@ void AGrappleHookCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGrappleHookCharacter::Look);
 
 		EnhancedInputComponent->BindAction(GrappleAction, ETriggerEvent::Started, this, &AGrappleHookCharacter::TryGrapple);
-
 	}
-
 }
 
 void AGrappleHookCharacter::Move(const FInputActionValue& Value)
