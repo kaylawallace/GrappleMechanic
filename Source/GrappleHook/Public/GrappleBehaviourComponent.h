@@ -23,7 +23,6 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UFUNCTION()
 	void Tick_GrappleRetracted();
 
 	void Tick_GrappleFiring();
@@ -41,44 +40,44 @@ public:
 	void TryGrapple();
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Character")
 	TObjectPtr<class AGrappleHookCharacter> OwningCharacter;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Core")
 	EGrappleState GrappleState;
 
-	UPROPERTY(EditAnywhere)
-	float MaxGrappleRange = 1500.f;
-
-	TObjectPtr<AGrappleTarget> CurrentTarget;
-
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category="GrappleComponentClasses")
 	TSubclassOf<class AGrappleEndPoint> GrappleEndPointClass;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "GrappleComponentsClasses")
 	TSubclassOf<class AGrappleCable> GrappleCableClass;
+
+	TObjectPtr<AGrappleTarget> CurrentTarget;
 
 	TObjectPtr<class AGrappleEndPoint> EndPoint; 
 
 	TObjectPtr<class AGrappleCable> GrappleCable;
 
+	UPROPERTY(EditAnywhere, Category = "Core")
+		float MaxGrappleRange = 1500.f;
+
 	// Distance between grapple end point and target in which the player will start grapple movement/action
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Core")
 	float StartGrappleDistance = 500.f;
 
 	// Distance between the owning character and grapple target at which the player will receive a boost before landing at grapple target
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Core")
 	float EndGrappleDistance = 200.f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Core")
 	float CharacterGrappleSpeed = 1500.f;
 
 	FVector InitLaunchDirection = FVector(0.f);
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Core")
 	float MinFinalBoost = 400.f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Core")
 	float MaxFinalBoost = 1000.f;
 
 private:

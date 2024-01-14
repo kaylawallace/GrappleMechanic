@@ -38,8 +38,6 @@ AGrappleTarget::AGrappleTarget()
 	TargetWidget->SetupAttachment(TargetIconBillboard);
 	TargetWidget->SetCollisionResponseToAllChannels(ECR_Ignore);
 	TargetWidget->SetVisibility(false);
-
-	//ShowTargetWidget(false);
 }
 
 // Called when the game starts or when spawned

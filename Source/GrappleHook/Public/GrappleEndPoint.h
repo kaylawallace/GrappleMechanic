@@ -35,25 +35,24 @@ public:
 private: 
 	virtual void OnConstruction(const FTransform& transform) override;
 
+	void CheckHasReachedEnd();
+
 protected:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category="Components")
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> Mesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="GrappleData")
 	TObjectPtr<class AGrappleTarget> GrappleTarget;
-	
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	//TObjectPtr<USceneComponent> Root;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GrappleData")
 	FVector StartLocation;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GrappleData")
 	FVector EndLocation;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GrappleData")
 	FVector Direction;
 };

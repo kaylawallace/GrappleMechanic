@@ -10,12 +10,6 @@ AGrappleEndPoint::AGrappleEndPoint()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//if (!Root)
-	//{
-	//	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	//	SetRootComponent(Root);
-	//}
-
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
 	Mesh->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -38,14 +32,12 @@ void AGrappleEndPoint::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (FVector::DistSquared(GetActorLocation(), StartLocation) >= FVector::DistSquared(GrappleTarget->GetActorLocation(), StartLocation))
-	{
-		SetActorLocation(EndLocation);
-		ProjectileMovement->Velocity = FVector(0.f);
-		SetActorTickEnabled(false);
-	}
+	CheckHasReachedEnd();
 }
 
+/*
+* Actor is spawned using deferred spawn, this is called once actor is finished spawning (allows for GrappleTarget to be set prior to this function being used) 
+*/
 void AGrappleEndPoint::OnConstruction(const FTransform& transform)
 {
 	Super::OnConstruction(transform);
@@ -59,12 +51,25 @@ void AGrappleEndPoint::OnConstruction(const FTransform& transform)
 
 		SetActorRotation(Direction.Rotation());
 	}
-	//else
-	//{
-	//	if (GEngine)
-	//		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("No grapple target found"));
-	//}
 }
+
+/*
+* Checks if this actor has reached the correct distance from the StartLocation & if it has, stops movement & ticking
+*/
+void AGrappleEndPoint::CheckHasReachedEnd()
+{
+	if (FVector::DistSquared(GetActorLocation(), StartLocation) >= FVector::DistSquared(GrappleTarget->GetActorLocation(), StartLocation))
+	{
+		SetActorLocation(EndLocation);
+		ProjectileMovement->Velocity = FVector(0.f);
+		SetActorTickEnabled(false);
+	}
+}
+
+
+/*
+* GETTERS/SETTERS
+*/
 
 FVector AGrappleEndPoint::GetDirection()
 {

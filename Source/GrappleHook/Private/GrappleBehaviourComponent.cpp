@@ -51,27 +51,22 @@ void UGrappleBehaviourComponent::SetCurrentTarget(AGrappleTarget* NewTarget)
 
 }
 
+/*
+* Run on grapple input pressed by player, tries to perform grapple behaviour to CurrentTarget
+*/
 void UGrappleBehaviourComponent::TryGrapple()
 {
 	if (GrappleState != EGrappleState::Retracted || !CurrentTarget)
 	{
 		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, TEXT("Exit state for Try Grapple"));
+			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, TEXT("Exit state for TryGrapple"));
 
 		return;
 	}
 
 	FTransform SpawnTransform = FTransform(FRotator(0.f), OwningCharacter->GetActorLocation(), FVector(1.f));
 
-	//AGrappleEndPoint* EndPoint = GetWorld()->SpawnActorDeferred<AGrappleEndPoint>(
-	//	GrappleEndPointClass,
-	//	SpawnTransform, 
-	//	OwningCharacter, 
-	//	nullptr, 
-	//	ESpawnActorCollisionHandlingMethod::AlwaysSpawn, 
-	//	ESpawnActorScaleMethod::SelectDefaultAtRuntime
-	//	);
-
+	// Spawn actual grapple hook (EndPoint)
 	EndPoint = Cast<AGrappleEndPoint>(UGameplayStatics::BeginDeferredActorSpawnFromClass(
 		GetWorld(),
 		GrappleEndPointClass, 
@@ -84,6 +79,7 @@ void UGrappleBehaviourComponent::TryGrapple()
 
 	UGameplayStatics::FinishSpawningActor(EndPoint, SpawnTransform);
 
+	// Spawn grapple cable 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
@@ -104,6 +100,9 @@ void UGrappleBehaviourComponent::TryGrapple()
 	GrappleState = EGrappleState::Firing;
 }
 
+/*
+* Search for best grapple target 
+*/
 void UGrappleBehaviourComponent::Tick_GrappleRetracted()
 {
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypeFilter;
@@ -135,12 +134,12 @@ void UGrappleBehaviourComponent::Tick_GrappleRetracted()
 		FCollisionQueryParams QueryParams;
 		FCollisionResponseParams ResponseParams;
 
-		// Check nothing is blocking potential sight to current Grapple Target
+		// Check nothing is blocking sight to current Grapple Target
 		UKismetSystemLibrary::LineTraceSingle(
 			GetWorld(),
 			OwningCharacter->GetActorLocation(),
 			OutActor->GetActorLocation(),
-			ETraceTypeQuery::TraceTypeQuery1,
+			ETraceTypeQuery::TraceTypeQuery1, // Visibility Channel
 			false,
 			ActorsToIgnore,
 			EDrawDebugTrace::None,
@@ -151,20 +150,9 @@ void UGrappleBehaviourComponent::Tick_GrappleRetracted()
 			0.f
 		);
 
-		
-		//ECollisionChannel ECC = UEngineTypes::ConvertToCollisionChannel(ETraceTypeQuery::TraceTypeQuery1);
-
-		//if (GEngine)
-		//		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, UEnum::GetValueAsString(ECC));
-
-		/*UKismetSystemLibrary::Linetracebychan*/
-
 		// Best Target Calculation
 		if (Hit.GetActor())
 		{
-			//if (GEngine)
-				//GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf(TEXT("Hit actor, %s, is valid"), *Hit.GetActor()->GetName()));
-
 			if (Hit.GetActor() == OutActor)
 			{
 				FVector Dir = OutActor->GetActorLocation() - OwningCharacter->GetActorLocation();
@@ -185,18 +173,13 @@ void UGrappleBehaviourComponent::Tick_GrappleRetracted()
 	
 	if (BestTarget)
 	{
-		/*if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, BestTarget->GetName());*/
-
 		SetCurrentTarget(Cast<AGrappleTarget>(BestTarget));
 	}
-	//else
-	//{
-	//	if (GEngine)
-	//		GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, TEXT("No best target found"));
-	//}
 }
 
+/*
+* Performs initial boost to player before they start grappling & checks if grapple is nearing the target 
+*/
 void UGrappleBehaviourComponent::Tick_GrappleFiring()
 {
 	if (EndPoint->GetDistanceToTarget() < StartGrappleDistance)
@@ -207,6 +190,9 @@ void UGrappleBehaviourComponent::Tick_GrappleFiring()
 	}
 }
 
+/*
+* Calculates a final boost amount for the player depending on the steepness of the grapple
+*/
 void UGrappleBehaviourComponent::Tick_GrappleNearingTarget()
 {
 	if (OwningCharacter->GetVelocity().Z <= 0.f)
@@ -228,15 +214,13 @@ void UGrappleBehaviourComponent::Tick_GrappleNearingTarget()
 	}
 }
 
+/*
+* Performs final boost for player and cleans up variables
+*/
 void UGrappleBehaviourComponent::Tick_GrappleOnTarget()
 {
 	if (OwningCharacter->GetDistanceTo(CurrentTarget) < EndGrappleDistance)
 	{
-		/*float Steepness = InitLaunchDirection.Rotation().Roll;
-		
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Purple, FString::Printf((TEXT("Steepness = %f")), Steepness));*/
-
 		FVector LaunchVelocity = InitLaunchDirection * MinFinalBoost; 
 		LaunchVelocity.Z = FMath::Max(LaunchVelocity.Z, FinalBoost);
 
@@ -263,35 +247,6 @@ void UGrappleBehaviourComponent::TickComponent(float DeltaTime, ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	/*if (GEngine)
-	{
-		if (GrappleCable)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf((TEXT("Grapple Cable = %s")), *FString(GrappleCable->GetName())));
-		}
-		else 
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, TEXT("No valid Grapple Cable"));
-		}
-
-		if (EndPoint)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Green, FString::Printf((TEXT("Grapple End Point = %s")), *FString(EndPoint->GetName())));
-		}
-		else
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, TEXT("No valid Grapple End Point"));
-		}
-
-		Steepness = InitLaunchDirection.Rotation().Pitch;
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Purple, FString::Printf((TEXT("Steepness = %f")), Steepness));
-			GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Purple, FString::Printf((TEXT("Curr Final Boost = %f")), FinalBoost));
-		}
-	}*/
-		
-
 	switch (GrappleState)
 	{
 	case EGrappleState::Retracted:
@@ -313,26 +268,6 @@ void UGrappleBehaviourComponent::TickComponent(float DeltaTime, ELevelTick TickT
 	default:
 		break;
 	}
-
-	/*if (CurrentTarget)
-	{
-		FVector Origin;
-		FVector Bounds;
-
-		CurrentTarget->GetActorBounds(true, Origin, Bounds);
-
-		DrawDebugSphere(
-			GetWorld(),
-			CurrentTarget->GetActorLocation(),
-			Bounds.Size(),
-			4,
-			FColor::Magenta,
-			false,
-			0.f,
-			0,
-			2.f
-		);
-	}*/
 }
 
 

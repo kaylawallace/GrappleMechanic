@@ -25,25 +25,27 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		TObjectPtr<UStaticMeshComponent> TargetMesh;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 		TObjectPtr<USceneComponent> Root;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		TObjectPtr<USceneComponent> CharacterLandingLocation;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 		TObjectPtr<class USphereComponent> CollisionSphere;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 		TObjectPtr<class UBillboardComponent> TargetIconBillboard;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
 		TObjectPtr<class UWidgetComponent> TargetWidget;
 
+
+// Use of this may be better/more usable in editor than a scene component?
 //protected:
-//	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(MakeEditWidget))
+//	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(MakeEditWidget), Category = "Offsets")
 //		FVector CharacterOffset = FVector(0.f, 0.f, 100.f);
 };
